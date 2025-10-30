@@ -1,11 +1,40 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
-    <title>Spring Security Example</title>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .profile { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .profile p { margin: 10px 0; }
+        .logout-form { display: inline; }
+        button { padding: 8px 16px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-logout { background: #dc3545; color: white; }
+        .btn-admin { background: #007bff; color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; }
+    </style>
 </head>
 <body>
-<h1>User, welcome spring boot security page!</h1>
+<h2>User Profile</h2>
 
+<div class="profile">
+    <p><strong>Name:</strong> <span th:text="${user.name}"></span></p>
+    <p><strong>Lastname:</strong> <span th:text="${user.lastname}"></span></p>
+    <p><strong>Year of Registration:</strong> <span th:text="${user.yearOfRegistration}"></span></p>
+    <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
+    <p><strong>Roles:</strong> <span th:text="${user.rolesString}"></span></p>
+</div>
 
+<div>
+    <form th:action="@{/logout}" method="post" class="logout-form">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="btn-logout">Logout</button>
+    </form>
+
+    <!-- Admin panel link for admin users -->
+    <div sec:authorize="hasRole('ROLE_ADMIN')">
+        <a th:href="@{/admin/users}" class="btn-admin">Admin Panel</a>
+    </div>
+</div>
 </body>
 </html>
