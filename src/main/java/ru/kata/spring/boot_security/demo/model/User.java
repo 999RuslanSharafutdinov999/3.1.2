@@ -108,12 +108,6 @@ public class User implements UserDetails {
                 .orElse("No roles");
     }
 
-    public boolean hasRole(String roleName) {
-        return roles.stream()
-                .anyMatch(role -> role.getAuthority().equals(roleName) ||
-                        role.getAuthority().equals("ROLE_" + roleName));
-    }
-
     @Override
     public String toString() {
         return "User{" +

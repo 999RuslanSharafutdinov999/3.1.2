@@ -10,7 +10,6 @@ import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 @Transactional
@@ -30,7 +29,9 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         List<User> users = userRepository.findAll();
-        users.forEach(user -> user.getRoles().size());
+        for (User user : users) {
+            initializeRoles(user);
+        }
         return users;
     }
 
@@ -38,21 +39,21 @@ public class UserService {
     public User getById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-        user.getRoles().size();
+        initializeRoles(user);
         return user;
     }
 
     @Transactional
-    public User saveUser(User user) {
+    public void saveUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Username already exists: " + user.getUsername());
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     @Transactional
-    public User updateUser(User updatedUser) {
+    public void updateUser(User updatedUser) {
         User existingUser = getById(updatedUser.getId());
 
         if (!existingUser.getUsername().equals(updatedUser.getUsername()) &&
@@ -70,11 +71,10 @@ public class UserService {
         if (newPassword != null && !newPassword.trim().isEmpty() && !isPasswordEncoded(newPassword)) {
             existingUser.setPassword(passwordEncoder.encode(newPassword));
         } else if (newPassword == null || newPassword.trim().isEmpty()) {
-            // Сохраняем старый пароль
             existingUser.setPassword(existingUser.getPassword());
         }
 
-        return userRepository.save(existingUser);
+        userRepository.save(existingUser);
     }
 
     @Transactional
@@ -106,17 +106,9 @@ public class UserService {
     public User findByUsername(String username) {
         User user = userRepository.findByUsername(username);
         if (user != null) {
-            user.getRoles().size();
+            initializeRoles(user);
         }
         return user;
-    }
-
-    @Transactional
-    public User createUser(String name, String lastname, Integer year, String username,
-                           String rawPassword, Set<Role> roles) {
-        User user = new User(name, lastname, year, username, rawPassword);
-        user.setRoles(roles);
-        return saveUser(user);
     }
 
     private boolean isPasswordEncoded(String password) {
@@ -126,8 +118,9 @@ public class UserService {
         return password.startsWith("$2a$") || password.startsWith("$2b$") || password.startsWith("$2y$");
     }
 
-    @Transactional(readOnly = true)
-    public boolean checkPassword(String rawPassword, String encodedPassword) {
-        return passwordEncoder.matches(rawPassword, encodedPassword);
+    private void initializeRoles(User user) {
+        if (user.getRoles() != null) {
+            user.getRoles().size();
+        }
     }
 }

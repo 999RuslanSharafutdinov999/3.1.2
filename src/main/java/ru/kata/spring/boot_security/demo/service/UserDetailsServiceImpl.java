@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
-
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -27,7 +26,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found: " + username);
         }
-        user.getRoles().size();
+        if (user.getRoles() != null) {
+            user.getRoles().size(); // Инициализация коллекции
+        }
         return user;
     }
 }

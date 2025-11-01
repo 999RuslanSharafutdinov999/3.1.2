@@ -12,6 +12,7 @@ import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,7 +42,7 @@ public class AdminController {
     @PostMapping("/users")
     public String addUser(@Valid @ModelAttribute("user") User user,
                           BindingResult bindingResult,
-                          @RequestParam("roleNames") List<String> roleNames,
+                          @RequestParam(value = "roleNames", required = false) List<String> roleNames,
                           RedirectAttributes redirectAttributes) {
 
         if (roleNames == null || roleNames.isEmpty()) {
@@ -82,7 +83,7 @@ public class AdminController {
     public String updateUser(@RequestParam("id") Long id,
                              @Valid @ModelAttribute("user") User user,
                              BindingResult bindingResult,
-                             @RequestParam("roleNames") List<String> roleNames,
+                             @RequestParam(value = "roleNames", required = false) List<String> roleNames,
                              RedirectAttributes redirectAttributes) {
 
         if (roleNames == null || roleNames.isEmpty()) {
