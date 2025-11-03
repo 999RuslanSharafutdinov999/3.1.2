@@ -21,14 +21,31 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
+    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+        System.out.println("=== Trying to authenticate: " + login + " ===");
+
+        // Пытаемся найти пользователя по username
+        User user = userRepository.findByUsername(login);
+
+        // Если не нашли по username, ищем по email
         if (user == null) {
-            throw new UsernameNotFoundException("User not found: " + username);
+            user = userRepository.findByEmail(login);
         }
+
+        if (user == null) {
+            System.out.println("=== User NOT FOUND: " + login + " ===");
+            throw new UsernameNotFoundException("User not found: " + login);
+        }
+
+        System.out.println("=== User FOUND: " + user.getUsername() + " ===");
+        System.out.println("=== Email: " + user.getEmail() + " ===");
+
+        // Инициализируем роли
         if (user.getRoles() != null) {
-            user.getRoles().size(); // Инициализация коллекции
+            user.getRoles().size();
+            System.out.println("=== Roles: " + user.getRoles() + " ===");
         }
+
         return user;
     }
 }

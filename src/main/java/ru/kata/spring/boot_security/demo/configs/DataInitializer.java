@@ -36,7 +36,9 @@ public class DataInitializer implements CommandLineRunner {
             admin.setName("Admin");
             admin.setLastname("Adminov");
             admin.setYearOfRegistration(2024);
+            admin.setAge(35);
             admin.setUsername("admin");
+            admin.setEmail("admin@mail.ru");
             admin.setPassword(passwordEncoder.encode("admin"));
             admin.setRoles(Set.of(roleAdmin, roleUser));
             userRepository.save(admin);
@@ -48,7 +50,9 @@ public class DataInitializer implements CommandLineRunner {
             user.setName("User");
             user.setLastname("Userov");
             user.setYearOfRegistration(2024);
+            user.setAge(30);
             user.setUsername("user");
+            user.setEmail("user@mail.ru");
             user.setPassword(passwordEncoder.encode("user"));
             user.setRoles(Set.of(roleUser));
             userRepository.save(user);

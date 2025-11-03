@@ -11,7 +11,7 @@ import jakarta.validation.Valid;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
-
+import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.List;
 import java.util.Set;
@@ -22,10 +22,12 @@ import java.util.stream.Collectors;
 public class AdminController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public AdminController(UserService userService) {
+    public AdminController(UserService userService, UserRepository userRepository) {
         this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/users")
@@ -44,6 +46,10 @@ public class AdminController {
                           BindingResult bindingResult,
                           @RequestParam(value = "roleNames", required = false) List<String> roleNames,
                           RedirectAttributes redirectAttributes) {
+
+        if (userRepository.existsByEmail(user.getEmail())) {
+            bindingResult.rejectValue("email", "error.user", "Email already exists");
+        }
 
         if (roleNames == null || roleNames.isEmpty()) {
             bindingResult.rejectValue("roles", "error.user", "At least one role must be selected");
@@ -85,6 +91,12 @@ public class AdminController {
                              BindingResult bindingResult,
                              @RequestParam(value = "roleNames", required = false) List<String> roleNames,
                              RedirectAttributes redirectAttributes) {
+
+        User existingUser = userService.getById(id);
+        if (!existingUser.getEmail().equals(user.getEmail()) &&
+                userRepository.existsByEmail(user.getEmail())) {
+            bindingResult.rejectValue("email", "error.user", "Email already exists");
+        }
 
         if (roleNames == null || roleNames.isEmpty()) {
             bindingResult.rejectValue("roles", "error.user", "At least one role must be selected");

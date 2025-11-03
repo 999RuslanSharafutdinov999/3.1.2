@@ -48,6 +48,9 @@ public class UserService {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Username already exists: " + user.getUsername());
         }
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new RuntimeException("Email already exists: " + user.getEmail());
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
@@ -61,10 +64,17 @@ public class UserService {
             throw new RuntimeException("Username already exists: " + updatedUser.getUsername());
         }
 
+        if (!existingUser.getEmail().equals(updatedUser.getEmail()) &&
+                userRepository.existsByEmail(updatedUser.getEmail())) {
+            throw new RuntimeException("Email already exists: " + updatedUser.getEmail());
+        }
+
         existingUser.setName(updatedUser.getName());
         existingUser.setLastname(updatedUser.getLastname());
         existingUser.setYearOfRegistration(updatedUser.getYearOfRegistration());
+        existingUser.setAge(updatedUser.getAge());
         existingUser.setUsername(updatedUser.getUsername());
+        existingUser.setEmail(updatedUser.getEmail());
         existingUser.setRoles(updatedUser.getRoles());
 
         String newPassword = updatedUser.getPassword();

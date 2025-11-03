@@ -36,9 +36,20 @@ public class User implements UserDetails {
     @Column(name = "year_of_registration")
     private Integer yearOfRegistration;
 
+    @NotNull(message = "Age is required")
+    @Min(value = 18, message = "Age must be at least 18")
+    @Max(value = 100, message = "Age must be less than 100")
+    @Column(name = "age")
+    private Integer age;
+
     @NotBlank(message = "Имя пользователя обязательно")
     @Column(name = "username", unique = true, nullable = false)
     private String username;
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
+    @Column(name = "email", unique = true, nullable = false)
+    private String email;
 
     @NotBlank(message = "Пароль обязателен")
     @Column(name = "password", nullable = false)
@@ -55,11 +66,13 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String name, String lastname, Integer yearOfRegistration, String username, String password) {
+    public User(String name, String lastname, Integer yearOfRegistration, Integer age, String username, String email, String password) {
         this.name = name;
         this.lastname = lastname;
         this.yearOfRegistration = yearOfRegistration;
+        this.age = age;
         this.username = username;
+        this.email = email;
         this.password = password;
     }
 
@@ -75,8 +88,14 @@ public class User implements UserDetails {
     public Integer getYearOfRegistration() { return yearOfRegistration; }
     public void setYearOfRegistration(Integer yearOfRegistration) { this.yearOfRegistration = yearOfRegistration; }
 
+    public Integer getAge() { return age; }
+    public void setAge(Integer age) { this.age = age; }
+
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
@@ -115,7 +134,9 @@ public class User implements UserDetails {
                 ", name='" + name + '\'' +
                 ", lastname='" + lastname + '\'' +
                 ", yearOfRegistration=" + yearOfRegistration +
+                ", age=" + age +
                 ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
                 ", roles=" + roles +
                 '}';
     }
