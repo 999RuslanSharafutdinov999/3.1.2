@@ -19,35 +19,33 @@ public class User implements UserDetails {
     private Long id;
 
     @NotBlank(message = "Имя обязательно для заполнения")
-    @Pattern(regexp = "^[a-zA-Zа-яА-ЯёЁ\\s\\-]+$", message = "Имя может содержать только буквы, пробелы и дефисы")
-    @Length(min = 2, max = 50, message = "Имя должно содержать от 2 до 50 символов")
+    @Pattern(regexp = "^[a-zA-Zа-яА-ЯёЁ\\s\\-]+$",
+            message = "Имя может содержать только буквы, пробелы и дефисы")
+    @Length(min = 2, max = 50,
+            message = "Имя должно содержать от 2 до 50 символов")
     @Column(name = "name", nullable = false)
     private String name;
 
     @NotBlank(message = "Фамилия обязательна для заполнения")
-    @Pattern(regexp = "^[a-zA-Zа-яА-ЯёЁ\\s\\-]+$", message = "Фамилия может содержать только буквы, пробелы и дефисы")
-    @Length(min = 2, max = 50, message = "Фамилия должна содержать от 2 до 50 символов")
+    @Pattern(regexp = "^[a-zA-Zа-яА-ЯёЁ\\s\\-]+$",
+            message = "Фамилия может содержать только буквы, пробелы и дефисы")
+    @Length(min = 2, max = 50,
+            message = "Фамилия должна содержать от 2 до 50 символов")
     @Column(name = "lastname", nullable = false)
     private String lastname;
 
-    @NotNull(message = "Год регистрации обязателен для заполнения")
-    @Min(value = 2000, message = "Год регистрации должен быть не менее 2000")
-    @Max(value = 2025, message = "Год регистрации должен быть не более 2025")
-    @Column(name = "year_of_registration")
-    private Integer yearOfRegistration;
-
-    @NotNull(message = "Age is required")
-    @Min(value = 18, message = "Age must be at least 18")
-    @Max(value = 100, message = "Age must be less than 100")
-    @Column(name = "age")
+    @NotNull(message = "Количество полных лет обязательно")
+    @Min(value = 18, message = "Полных лет должно быть не менее 18")
+    @Max(value = 100, message = "Полных лет должно быть не более 100")
+    @Column(name = "age", nullable = false)
     private Integer age;
 
     @NotBlank(message = "Имя пользователя обязательно")
     @Column(name = "username", unique = true, nullable = false)
     private String username;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email обязательно")
+    @Email(message = "Email не валиден")
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 
@@ -66,10 +64,9 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String name, String lastname, Integer yearOfRegistration, Integer age, String username, String email, String password) {
+    public User(String name, String lastname, Integer age, String username, String email, String password) {
         this.name = name;
         this.lastname = lastname;
-        this.yearOfRegistration = yearOfRegistration;
         this.age = age;
         this.username = username;
         this.email = email;
@@ -84,9 +81,6 @@ public class User implements UserDetails {
 
     public String getLastname() { return lastname; }
     public void setLastname(String lastname) { this.lastname = lastname; }
-
-    public Integer getYearOfRegistration() { return yearOfRegistration; }
-    public void setYearOfRegistration(Integer yearOfRegistration) { this.yearOfRegistration = yearOfRegistration; }
 
     public Integer getAge() { return age; }
     public void setAge(Integer age) { this.age = age; }
@@ -133,7 +127,6 @@ public class User implements UserDetails {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", lastname='" + lastname + '\'' +
-                ", yearOfRegistration=" + yearOfRegistration +
                 ", age=" + age +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +

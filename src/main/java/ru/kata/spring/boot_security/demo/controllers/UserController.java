@@ -36,6 +36,7 @@ public class UserController {
         String username = authentication.getName();
         User user = userService.findByUsername(username);
         model.addAttribute("user", user);
+
         return "user";
     }
 }

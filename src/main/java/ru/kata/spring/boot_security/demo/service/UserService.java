@@ -20,7 +20,9 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository,
+                       RoleRepository roleRepository,
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -37,8 +39,10 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        User user = userRepository
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException(
+                        "User not found with id: " + id));
         initializeRoles(user);
         return user;
     }
@@ -46,10 +50,12 @@ public class UserService {
     @Transactional
     public void saveUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
-            throw new RuntimeException("Username already exists: " + user.getUsername());
+            throw new RuntimeException(
+                    "Username already exists: " + user.getUsername());
         }
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email already exists: " + user.getEmail());
+            throw new RuntimeException(
+                    "Email already exists: " + user.getEmail());
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
@@ -61,17 +67,18 @@ public class UserService {
 
         if (!existingUser.getUsername().equals(updatedUser.getUsername()) &&
                 userRepository.existsByUsername(updatedUser.getUsername())) {
-            throw new RuntimeException("Username already exists: " + updatedUser.getUsername());
+            throw new RuntimeException(
+                    "Username already exists: " + updatedUser.getUsername());
         }
 
         if (!existingUser.getEmail().equals(updatedUser.getEmail()) &&
                 userRepository.existsByEmail(updatedUser.getEmail())) {
-            throw new RuntimeException("Email already exists: " + updatedUser.getEmail());
+            throw new RuntimeException(
+                    "Email already exists: " + updatedUser.getEmail());
         }
 
         existingUser.setName(updatedUser.getName());
         existingUser.setLastname(updatedUser.getLastname());
-        existingUser.setYearOfRegistration(updatedUser.getYearOfRegistration());
         existingUser.setAge(updatedUser.getAge());
         existingUser.setUsername(updatedUser.getUsername());
         existingUser.setEmail(updatedUser.getEmail());
@@ -80,8 +87,6 @@ public class UserService {
         String newPassword = updatedUser.getPassword();
         if (newPassword != null && !newPassword.trim().isEmpty() && !isPasswordEncoded(newPassword)) {
             existingUser.setPassword(passwordEncoder.encode(newPassword));
-        } else if (newPassword == null || newPassword.trim().isEmpty()) {
-            existingUser.setPassword(existingUser.getPassword());
         }
 
         userRepository.save(existingUser);
@@ -90,7 +95,8 @@ public class UserService {
     @Transactional
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User not found with id: " + id);
+            throw new RuntimeException(
+                    "User not found with id: " + id);
         }
         userRepository.deleteById(id);
     }
@@ -125,7 +131,9 @@ public class UserService {
         if (password == null || password.length() < 60) {
             return false;
         }
-        return password.startsWith("$2a$") || password.startsWith("$2b$") || password.startsWith("$2y$");
+        return password.startsWith("$2a$") ||
+                password.startsWith("$2b$") ||
+                password.startsWith("$2y$");
     }
 
     private void initializeRoles(User user) {

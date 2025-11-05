@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Please sign in</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+          crossorigin="anonymous">
     <style>
         body {
             background-color: #f8f9fa;
@@ -26,19 +29,19 @@
         }
         .login-header {
             text-align: center;
-            margin-bottom: 0; /* Убираем отступ снизу */
+            margin-bottom: 0;
         }
         .login-header h1 {
-            margin-bottom: 0.5rem; /* Маленький отступ у заголовка */
+            margin-bottom: 0.5rem;
         }
         .first-field {
-            margin-top: 0; /* Убираем отступ сверху у первого поля */
+            margin-top: 0;
         }
     </style>
 </head>
 <body>
 <div class="login-header mt-4">
-    <h1 class="h3 fw-normal">Please sign in</h1> <!-- Убрали mb-3 -->
+    <h1 class="h3 fw-normal">Please sign in</h1>
 </div>
 
 <form class="form-signin" th:action="@{/login}" method="post">
@@ -50,12 +53,14 @@
         You have been logged out successfully
     </div>
 
-    <div class="mb-3 first-field"> <!-- Добавили класс first-field -->
+    <div class="mb-3 first-field">
+        <label for="username" class="form-label">Username or Email</label>
         <input type="text" class="form-control" id="username" name="username"
-               placeholder="Email" required autocomplete="username">
+               placeholder="Username or Email" required autocomplete="username">
     </div>
 
     <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
         <input type="password" class="form-control" id="password" name="password"
                placeholder="Password" required autocomplete="current-password">
     </div>
@@ -63,7 +68,9 @@
     <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
 </form>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const inputs = document.querySelectorAll('.form-control');
@@ -86,3 +93,4 @@
 </script>
 </body>
 </html>
+<!--предупреждения по CDN ссылкам если что можно добавить bootstrap локально-->

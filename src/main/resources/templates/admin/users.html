@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Admin Panel</title>
@@ -59,6 +60,9 @@
             margin: 5px 0;
             cursor: pointer;
             border-radius: 4px;
+            text-decoration: none;
+            color: inherit;
+            display: block;
         }
         .sidebar-item:hover {
             background-color: #e9ecef;
@@ -110,11 +114,6 @@
             padding: 20px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .table-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
         .table {
             width: 100%;
             border-collapse: collapse;
@@ -160,89 +159,24 @@
             border-color: #dc3545;
             color: #dc3545;
         }
-        .modal-content {
-            border-radius: 8px;
-        }
-        .modal-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-        }
-        .user-data-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .user-data-item {
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            align-items: center;
-        }
-        .user-data-item:last-child {
-            border-bottom: none;
-        }
-        .user-data-label {
-            font-weight: bold;
-            color: #495057;
-            min-width: 120px;
+        .user-panel-btn {
+            background-color: #000000;
+            color: #e9ecef;
+            border: 1px solid #000000;
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.3s ease;
             display: inline-block;
+            margin-right: 10px;
         }
-        .form-inline-input {
-            display: inline-block;
-            width: auto;
+        .user-panel-btn:hover {
+            background-color: #333333;
+            color: #ffffff;
+            text-decoration: none;
         }
-        .roles-display {
-            display: flex;
-            gap: 5px;
-        }
-
-        /* Стили для центрированной формы добавления пользователя */
-        .centered-form-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-        .centered-form {
-            width: 100%;
-            max-width: 500px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .form-field-group {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        .form-field-row {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        .form-label {
-            min-width: 120px;
-            text-align: right;
-            margin-right: 15px;
-            font-weight: 500;
-        }
-        .form-input {
-            flex: 1;
-            max-width: 300px;
-        }
-        .form-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        /* Стили для модальных окон */
         .user-info-display {
             background-color: white;
             border: 1px solid #dee2e6;
@@ -251,6 +185,10 @@
             margin-bottom: 15px;
             text-align: center;
             font-weight: 500;
+        }
+        .roles-display {
+            display: flex;
+            gap: 5px;
         }
     </style>
 </head>
@@ -261,18 +199,21 @@
         <span sec:authentication="name"></span> with roles:
         <span sec:authentication="principal.authorities" id="roles-display"></span>
     </div>
-    <form th:action="@{/logout}" method="post" class="d-inline">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <button type="submit" class="logout-btn">Logout</button>
-    </form>
+    <div class="user-info">
+        <a th:href="@{/user}" class="user-panel-btn">User Page</a>
+        <form th:action="@{/logout}" method="post" class="d-inline">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
 </div>
 
 <!-- Основной контент с боковым меню -->
 <div class="content-container">
     <!-- Боковое меню -->
     <div class="sidebar">
-        <div class="sidebar-item active">Admin</div>
-        <div class="sidebar-item">User</div>
+        <a th:href="@{/admin/users}" class="sidebar-item active">Admin</a>
+        <a th:href="@{/user}" class="sidebar-item">User</a>
     </div>
 
     <!-- Основной контент -->
@@ -286,20 +227,10 @@
             </div>
         </div>
 
-        <!-- Уведомления -->
-        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
-            <span th:text="${successMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
-            <span th:text="${errorMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-
         <!-- Форма добавления пользователя -->
         <div class="d-none" id="newUserForm">
             <!-- Заголовок с серым фоном -->
-            <div class="p-3" style="background-color: #f8f9fa; border-radius: 0px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div class="p-3" style="background-color: #f8f9fa; border-radius: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                 <div style="font-size: 18px; font-weight: bold;">Add new user</div>
             </div>
 
@@ -309,37 +240,49 @@
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                     <div class="mb-3 text-center">
-                        <div class="mb-1">First name</div>
+                        <label for="name" class="mb-1">First name</label>
                         <input type="text" class="form-control mx-auto" id="name" th:field="*{name}" required style="width: 300px;">
+                        <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger small mt-1"></div>
                     </div>
 
                     <div class="mb-3 text-center">
-                        <div class="mb-1">Last name</div>
+                        <label for="lastname" class="mb-1">Last name</label>
                         <input type="text" class="form-control mx-auto" id="lastname" th:field="*{lastname}" required style="width: 300px;">
+                        <div th:if="${#fields.hasErrors('lastname')}" th:errors="*{lastname}" class="text-danger small mt-1"></div>
                     </div>
 
                     <div class="mb-3 text-center">
-                        <div class="mb-1">Age</div>
+                        <label for="username" class="mb-1">Username</label>
+                        <input type="text" class="form-control mx-auto" id="username" th:field="*{username}" required style="width: 300px;">
+                        <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger small mt-1"></div>
+                    </div>
+
+                    <div class="mb-3 text-center">
+                        <label for="age" class="mb-1">Age</label>
                         <input type="number" class="form-control mx-auto" id="age" th:field="*{age}" required style="width: 120px;">
+                        <div th:if="${#fields.hasErrors('age')}" th:errors="*{age}" class="text-danger small mt-1"></div>
                     </div>
 
                     <div class="mb-3 text-center">
-                        <div class="mb-1">Email</div>
+                        <label for="email" class="mb-1">Email</label>
                         <input type="email" class="form-control mx-auto" id="email" th:field="*{email}" required style="width: 300px;">
+                        <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger small mt-1"></div>
                     </div>
 
                     <div class="mb-3 text-center">
-                        <div class="mb-1">Password</div>
+                        <label for="password" class="mb-1">Password</label>
                         <input type="password" class="form-control mx-auto" id="password" th:field="*{password}" required style="width: 300px;">
+                        <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger small mt-1"></div>
                     </div>
 
                     <div class="mb-3 text-center">
-                        <div class="mb-1">Role</div>
+                        <label for="roles" class="mb-1">Role</label>
                         <select id="roles" class="form-select mx-auto" name="roleNames" multiple required style="width: 300px; height: 80px;">
                             <option th:each="role : ${allRoles}"
                                     th:value="${role.name}"
-                                    th:text="${role.name.replace('ROLE_', '')}"></option>
+                                    th:text="${#strings.replace(role.name, 'ROLE_', '')}"></option>
                         </select>
+                        <div th:if="${#fields.hasErrors('roles')}" th:errors="*{roles}" class="text-danger small mt-1"></div>
                     </div>
 
                     <button type="submit" class="btn btn-success">Add new user</button>
@@ -348,9 +291,8 @@
         </div>
 
         <!-- Таблица пользователей -->
-        <div class="d-none" id="usersTable">
-            <!-- ИСПРАВЛЕНО: добавлено значение 5px для border-radius -->
-            <div class="p-3" style="background-color: #f8f9fa; border-radius: 0px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div id="usersTable">
+            <div class="p-3" style="background-color: #f8f9fa; border-radius: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                 <div style="font-size: 18px; font-weight: bold;">All users</div>
             </div>
             <table class="table">
@@ -359,6 +301,7 @@
                     <th>ID</th>
                     <th>First Name</th>
                     <th>Last Name</th>
+                    <th>Username</th>
                     <th>Age</th>
                     <th>Email</th>
                     <th>Role</th>
@@ -370,6 +313,7 @@
                     <td th:text="${user.id}"></td>
                     <td th:text="${user.name}"></td>
                     <td th:text="${user.lastname}"></td>
+                    <td th:text="${user.username}"></td>
                     <td th:text="${user.age}"></td>
                     <td th:text="${user.email}"></td>
                     <td>
@@ -379,99 +323,22 @@
                         </span>
                     </td>
                     <td>
-                        <button type="button" class="action-btn edit-btn"
-                                data-bs-toggle="modal"
-                                data-bs-target="#editUserModal"
-                                th:data-user-id="${user.id}"
-                                th:data-user-name="${user.name}"
-                                th:data-user-lastname="${user.lastname}"
-                                th:data-user-age="${user.age}"
-                                th:data-user-email="${user.email}"
-                                th:data-user-roles="${user.roles.![name]}">
-                            Edit
-                        </button>
-                        <button type="button" class="action-btn delete-btn"
+                        <a th:href="@{/admin/users/edit(id=${user.id})}" class="action-btn edit-btn">Edit</a>
+                        <button type="button" class="action-btn delete-btn user-delete-btn"
                                 data-bs-toggle="modal"
                                 data-bs-target="#deleteModal"
                                 th:data-user-id="${user.id}"
                                 th:data-user-name="${user.name}"
                                 th:data-user-lastname="${user.lastname}"
+                                th:data-user-username="${user.username}"
                                 th:data-user-age="${user.age}"
-                                th:data-user-email="${user.email}"
-                                th:data-user-roles="${user.roles.![name]}">
+                                th:data-user-email="${user.email}">
                             Delete
                         </button>
                     </td>
                 </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
-</div>
-
-<!-- Модальное окно редактирования пользователя -->
-<div class="modal fade" id="editUserModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <!-- Заголовок с белым фоном -->
-            <div class="modal-header">
-                <h5 class="modal-title">Edit user</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                <!-- Форма с белым фоном -->
-                <div class="table-container">
-                    <form th:action="@{/admin/users/update}" method="post" id="editUserForm" class="mt-3 text-center">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <input type="hidden" name="id" id="editUserId">
-
-                        <div class="mb-3 text-center">
-                            <div class="mb-1">ID</div>
-                            <div id="editUserDisplayId" class="user-info-display"></div>
-                        </div>
-
-                        <div class="mb-3 text-center">
-                            <div class="mb-1">First name</div>
-                            <input type="text" class="form-control mx-auto" name="name" id="editUserName" required style="width: 300px;">
-                        </div>
-
-                        <div class="mb-3 text-center">
-                            <div class="mb-1">Last name</div>
-                            <input type="text" class="form-control mx-auto" name="lastname" id="editUserLastname" required style="width: 300px;">
-                        </div>
-
-                        <div class="mb-3 text-center">
-                            <div class="mb-1">Age</div>
-                            <input type="number" class="form-control mx-auto" name="age" id="editUserAge" min="18" max="100" required style="width: 120px;">
-                        </div>
-
-                        <div class="mb-3 text-center">
-                            <div class="mb-1">Email</div>
-                            <input type="email" class="form-control mx-auto" name="email" id="editUserEmail" required style="width: 300px;">
-                        </div>
-
-                        <div class="mb-3 text-center">
-                            <div class="mb-1">Password</div>
-                            <input type="password" class="form-control mx-auto" name="password" id="editUserPassword" placeholder="Leave blank to keep current" style="width: 300px;">
-                        </div>
-
-                        <div class="mb-3 text-center">
-                            <div class="mb-1">Role</div>
-                            <select class="form-select mx-auto" name="roleNames" multiple id="editUserRoles" style="width: 300px; height: 80px;">
-                                <option th:each="role : ${allRoles}"
-                                        th:value="${role.name}"
-                                        th:text="${role.name.replace('ROLE_', '')}"></option>
-                            </select>
-                        </div>
-
-                        <div class="form-buttons">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Edit</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -503,6 +370,11 @@
                         <div class="mb-3 text-center">
                             <div class="mb-1">Last name</div>
                             <div id="deleteUserLastname" class="user-info-display"></div>
+                        </div>
+
+                        <div class="mb-3 text-center">
+                            <div class="mb-1">Username</div>
+                            <div id="deleteUserUsername" class="user-info-display"></div>
                         </div>
 
                         <div class="mb-3 text-center">
@@ -545,7 +417,12 @@
         const newUserBtn = document.getElementById('newUserBtn');
         const usersTable = document.getElementById('usersTable');
         const newUserForm = document.getElementById('newUserForm');
-        const cancelNewUser = document.getElementById('cancelNewUser');
+
+        // Показывать таблицу пользователей по умолчанию
+        usersTable.classList.remove('d-none');
+        newUserForm.classList.add('d-none');
+        usersTableBtn.classList.add('active');
+        newUserBtn.classList.remove('active');
 
         // Переключение между таблицей и формой добавления
         usersTableBtn.addEventListener('click', function() {
@@ -562,40 +439,6 @@
             newUserBtn.classList.add('active');
         });
 
-        // Модальное окно редактирования
-        const editUserModal = document.getElementById('editUserModal');
-        editUserModal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            const userId = button.getAttribute('data-user-id');
-            const userName = button.getAttribute('data-user-name');
-            const userLastname = button.getAttribute('data-user-lastname');
-            const userAge = button.getAttribute('data-user-age');
-            const userEmail = button.getAttribute('data-user-email');
-
-            // Получение ролей пользователя
-            let userRoles = [];
-            try {
-                const rolesAttr = button.getAttribute('data-user-roles');
-                userRoles = JSON.parse(rolesAttr);
-            } catch (e) {
-                console.error('Error parsing roles:', e);
-            }
-
-            // Установка значений в поля формы
-            document.getElementById('editUserId').value = userId;
-            document.getElementById('editUserDisplayId').textContent = userId;
-            document.getElementById('editUserName').value = userName || '';
-            document.getElementById('editUserLastname').value = userLastname || '';
-            document.getElementById('editUserAge').value = userAge || '';
-            document.getElementById('editUserEmail').value = userEmail || '';
-
-            // Установка выбранных ролей
-            const roleSelect = document.getElementById('editUserRoles');
-            Array.from(roleSelect.options).forEach(option => {
-                option.selected = userRoles.includes(option.value);
-            });
-        });
-
         // Модальное окно удаления
         const deleteModal = document.getElementById('deleteModal');
         deleteModal.addEventListener('show.bs.modal', function(event) {
@@ -603,6 +446,7 @@
             const userId = button.getAttribute('data-user-id');
             const userName = button.getAttribute('data-user-name');
             const userLastname = button.getAttribute('data-user-lastname');
+            const userUsername = button.getAttribute('data-user-username');
             const userAge = button.getAttribute('data-user-age');
             const userEmail = button.getAttribute('data-user-email');
 
@@ -610,7 +454,7 @@
             let userRoles = [];
             try {
                 const rolesAttr = button.getAttribute('data-user-roles');
-                userRoles = JSON.parse(rolesAttr);
+                userRoles = rolesAttr ? rolesAttr.split(',') : [];
             } catch (e) {
                 console.error('Error parsing roles:', e);
             }
@@ -620,6 +464,7 @@
             document.getElementById('deleteUserDisplayId').textContent = userId;
             document.getElementById('deleteUserName').textContent = userName || '';
             document.getElementById('deleteUserLastname').textContent = userLastname || '';
+            document.getElementById('deleteUserUsername').textContent = userUsername || '';
             document.getElementById('deleteUserAge').textContent = userAge || '';
             document.getElementById('deleteUserEmail').textContent = userEmail || '';
 
@@ -639,8 +484,7 @@
         const rolesElement = document.getElementById('roles-display');
         if (rolesElement) {
             const rolesText = rolesElement.textContent;
-            const formattedRoles = rolesText.replace(/ROLE_/g, '').replace(/\[|\]/g, '').replace(/,/g, ' ');
-            rolesElement.textContent = formattedRoles;
+            rolesElement.textContent = rolesText.replace(/ROLE_/g, '').replace(/[\[\],]/g, ' ').replace(/\s+/g, ' ').trim();
         }
     });
 </script>

@@ -25,7 +25,8 @@ public class AdminController {
     private final UserRepository userRepository;
 
     @Autowired
-    public AdminController(UserService userService, UserRepository userRepository) {
+    public AdminController(UserService userService,
+                           UserRepository userRepository) {
         this.userService = userService;
         this.userRepository = userRepository;
     }
@@ -37,7 +38,9 @@ public class AdminController {
         if (!model.containsAttribute("user")) {
             model.addAttribute("user", new User());
         }
-        model.addAttribute("allRoles", userService.getAllRoles());
+        model.addAttribute("allRoles",
+                userService.getAllRoles());
+
         return "admin/users";
     }
 
@@ -52,7 +55,8 @@ public class AdminController {
         }
 
         if (roleNames == null || roleNames.isEmpty()) {
-            bindingResult.rejectValue("roles", "error.user", "At least one role must be selected");
+            bindingResult.rejectValue("roles", "error.user",
+                    "At least one role must be selected");
         }
 
         if (bindingResult.hasErrors()) {
@@ -89,22 +93,33 @@ public class AdminController {
     public String updateUser(@RequestParam("id") Long id,
                              @Valid @ModelAttribute("user") User user,
                              BindingResult bindingResult,
-                             @RequestParam(value = "roleNames", required = false) List<String> roleNames,
+                             @RequestParam(value = "roleNames", required = false)
+                                 List<String> roleNames,
                              RedirectAttributes redirectAttributes) {
 
         User existingUser = userService.getById(id);
+
+        if (!existingUser.getUsername().equals(user.getUsername()) &&
+                userRepository.existsByUsername(user.getUsername())) {
+            bindingResult.rejectValue("username", "error.user",
+                    "Username already exists");
+        }
+
         if (!existingUser.getEmail().equals(user.getEmail()) &&
                 userRepository.existsByEmail(user.getEmail())) {
-            bindingResult.rejectValue("email", "error.user", "Email already exists");
+            bindingResult.rejectValue("email", "error.user",
+                    "Email already exists");
         }
 
         if (roleNames == null || roleNames.isEmpty()) {
-            bindingResult.rejectValue("roles", "error.user", "At least one role must be selected");
+            bindingResult.rejectValue("roles", "error.user",
+                    "At least one role must be selected");
         }
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute(
-                    "org.springframework.validation.BindingResult.user", bindingResult);
+                    "org.springframework.validation.BindingResult.user",
+                    bindingResult);
             redirectAttributes.addFlashAttribute("user", user);
             return "redirect:/admin/users/edit?id=" + id;
         }
@@ -114,9 +129,11 @@ public class AdminController {
                     .map(userService::findRoleByName)
                     .collect(Collectors.toSet());
             user.setRoles(roles);
+            user.setId(id);
 
             userService.updateUser(user);
-            redirectAttributes.addFlashAttribute("successMessage", "User updated successfully!");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "User updated successfully!");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
@@ -125,12 +142,15 @@ public class AdminController {
     }
 
     @PostMapping("/users/delete")
-    public String deleteUser(@RequestParam("id") Long id, RedirectAttributes redirectAttributes) {
+    public String deleteUser(@RequestParam("id") Long id,
+                             RedirectAttributes redirectAttributes) {
         try {
             userService.deleteUser(id);
-            redirectAttributes.addFlashAttribute("successMessage", "User deleted successfully!");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "User deleted successfully!");
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    e.getMessage());
         }
         return "redirect:/admin/users";
     }
