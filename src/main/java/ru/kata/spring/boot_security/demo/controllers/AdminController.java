@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
-import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.List;
 import java.util.Set;
@@ -22,13 +21,10 @@ import java.util.stream.Collectors;
 public class AdminController {
 
     private final UserService userService;
-    private final UserRepository userRepository;
 
     @Autowired
-    public AdminController(UserService userService,
-                           UserRepository userRepository) {
+    public AdminController(UserService userService) { // ✅ Только сервис!
         this.userService = userService;
-        this.userRepository = userRepository;
     }
 
     @GetMapping("/users")
@@ -38,9 +34,7 @@ public class AdminController {
         if (!model.containsAttribute("user")) {
             model.addAttribute("user", new User());
         }
-        model.addAttribute("allRoles",
-                userService.getAllRoles());
-
+        model.addAttribute("allRoles", userService.getAllRoles());
         return "admin/users";
     }
 
@@ -50,7 +44,12 @@ public class AdminController {
                           @RequestParam(value = "roleNames", required = false) List<String> roleNames,
                           RedirectAttributes redirectAttributes) {
 
-        if (userRepository.existsByEmail(user.getEmail())) {
+        // ✅ Используем сервис вместо прямого доступа к репозиторию
+        if (userService.existsByUsername(user.getUsername())) {
+            bindingResult.rejectValue("username", "error.user", "Username already exists");
+        }
+
+        if (userService.existsByEmail(user.getEmail())) {
             bindingResult.rejectValue("email", "error.user", "Email already exists");
         }
 
@@ -82,49 +81,50 @@ public class AdminController {
     }
 
     @GetMapping("/users/edit")
-    public String editUser(@RequestParam("id") Long id, Model model) {
-        User user = userService.getById(id);
-        model.addAttribute("user", user);
-        model.addAttribute("allRoles", userService.getAllRoles());
-        return "admin/editUser";
+    public String editUser(@RequestParam("id") Long id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            User user = userService.getById(id);
+            model.addAttribute("user", user);
+            model.addAttribute("allRoles", userService.getAllRoles());
+            return "admin/editUser";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "User not found: " + id);
+            return "redirect:/admin/users";
+        }
     }
 
     @PostMapping("/users/update")
     public String updateUser(@RequestParam("id") Long id,
                              @Valid @ModelAttribute("user") User user,
                              BindingResult bindingResult,
-                             @RequestParam(value = "roleNames", required = false)
-                                 List<String> roleNames,
+                             @RequestParam(value = "roleNames", required = false) List<String> roleNames,
                              RedirectAttributes redirectAttributes) {
 
-        User existingUser = userService.getById(id);
-
-        if (!existingUser.getUsername().equals(user.getUsername()) &&
-                userRepository.existsByUsername(user.getUsername())) {
-            bindingResult.rejectValue("username", "error.user",
-                    "Username already exists");
-        }
-
-        if (!existingUser.getEmail().equals(user.getEmail()) &&
-                userRepository.existsByEmail(user.getEmail())) {
-            bindingResult.rejectValue("email", "error.user",
-                    "Email already exists");
-        }
-
-        if (roleNames == null || roleNames.isEmpty()) {
-            bindingResult.rejectValue("roles", "error.user",
-                    "At least one role must be selected");
-        }
-
-        if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute(
-                    "org.springframework.validation.BindingResult.user",
-                    bindingResult);
-            redirectAttributes.addFlashAttribute("user", user);
-            return "redirect:/admin/users/edit?id=" + id;
-        }
-
         try {
+            User existingUser = userService.getById(id);
+
+            if (!existingUser.getUsername().equals(user.getUsername()) &&
+                    userService.existsByUsername(user.getUsername())) {
+                bindingResult.rejectValue("username", "error.user", "Username already exists");
+            }
+
+            if (!existingUser.getEmail().equals(user.getEmail()) &&
+                    userService.existsByEmail(user.getEmail())) {
+                bindingResult.rejectValue("email", "error.user", "Email already exists");
+            }
+
+            if (roleNames == null || roleNames.isEmpty()) {
+                bindingResult.rejectValue("roles", "error.user",
+                        "At least one role must be selected");
+            }
+
+            if (bindingResult.hasErrors()) {
+                redirectAttributes.addFlashAttribute(
+                        "org.springframework.validation.BindingResult.user", bindingResult);
+                redirectAttributes.addFlashAttribute("user", user);
+                return "redirect:/admin/users/edit?id=" + id;
+            }
+
             Set<Role> roles = roleNames.stream()
                     .map(userService::findRoleByName)
                     .collect(Collectors.toSet());
@@ -132,8 +132,7 @@ public class AdminController {
             user.setId(id);
 
             userService.updateUser(user);
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "User updated successfully!");
+            redirectAttributes.addFlashAttribute("successMessage", "User updated successfully!");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
@@ -146,11 +145,9 @@ public class AdminController {
                              RedirectAttributes redirectAttributes) {
         try {
             userService.deleteUser(id);
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "User deleted successfully!");
+            redirectAttributes.addFlashAttribute("successMessage", "User deleted successfully!");
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
         return "redirect:/admin/users";
     }
