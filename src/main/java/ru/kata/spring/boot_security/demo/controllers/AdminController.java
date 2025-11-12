@@ -12,6 +12,7 @@ import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class AdminController {
     private final UserService userService;
 
     @Autowired
-    public AdminController(UserService userService) { // ✅ Только сервис!
+    public AdminController(UserService userService) {
         this.userService = userService;
     }
 

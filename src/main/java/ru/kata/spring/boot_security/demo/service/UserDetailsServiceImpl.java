@@ -7,17 +7,20 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.repository.UserRepository;
+
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Autowired
-    public UserDetailsServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserDetailsServiceImpl(UserService userService) {
+        this.userService = userService;
     }
+
+
+
 
     @Override
     @Transactional(readOnly = true)
@@ -25,11 +28,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         System.out.println("=== Trying to authenticate: " + login + " ===");
 
         // Пытаемся найти пользователя по username
-        User user = userRepository.findByUsername(login);
+        User user = userService.findByUsername(login);
 
-        // Если не нашли по username, ищем по email
+        // ЕСЛИ НЕ НАЙДЕН ПО USERNAME - ИЩЕМ ПО EMAIL
         if (user == null) {
-            user = userRepository.findByEmail(login);
+            System.out.println("=== Not found by username, trying email: " + login + " ===");
+            user = userService.findByEmail(login);
         }
 
         if (user == null) {
@@ -39,6 +43,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         System.out.println("=== User FOUND: " + user.getUsername() + " ===");
         System.out.println("=== Email: " + user.getEmail() + " ===");
+
 
         // Инициализируем роли
         if (user.getRoles() != null) {

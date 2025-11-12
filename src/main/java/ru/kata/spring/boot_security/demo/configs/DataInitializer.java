@@ -6,21 +6,23 @@ import org.springframework.stereotype.Component;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
-import ru.kata.spring.boot_security.demo.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.util.Set;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public DataInitializer(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+    public DataInitializer(UserService userService,
+                           RoleRepository roleRepository,
+                           PasswordEncoder passwordEncoder) {
+        this.userService = userService;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -31,29 +33,29 @@ public class DataInitializer implements CommandLineRunner {
         Role roleUser = createRoleIfNotFound("ROLE_USER");
         Role roleAdmin = createRoleIfNotFound("ROLE_ADMIN");
 
-        if (userRepository.findByUsername("admin") == null) {
+        if (!userService.existsByUsername("admin")) {
             User admin = new User();
             admin.setName("Admin");
             admin.setLastname("Adminov");
             admin.setAge(35);
             admin.setUsername("admin");
             admin.setEmail("admin@mail.ru");
-            admin.setPassword(passwordEncoder.encode("admin"));
+            admin.setPassword("admin");
             admin.setRoles(Set.of(roleAdmin, roleUser));
-            userRepository.save(admin);
+            userService.saveUser(admin);
             System.out.println("=== Created admin user: admin/admin ===");
         }
 
-        if (userRepository.findByUsername("user") == null) {
+        if (!userService.existsByUsername("user")) {
             User user = new User();
             user.setName("User");
             user.setLastname("Userov");
             user.setAge(30);
             user.setUsername("user");
             user.setEmail("user@mail.ru");
-            user.setPassword(passwordEncoder.encode("user"));
+            user.setPassword("user");
             user.setRoles(Set.of(roleUser));
-            userRepository.save(user);
+            userService.saveUser(user);
             System.out.println("=== Created user: user/user ===");
         }
 

@@ -29,7 +29,9 @@ public class WebSecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
+                        .loginProcessingUrl("/login")
                         .successHandler(successUserHandler)
+                        .failureUrl("/login?error")
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -37,6 +39,7 @@ public class WebSecurityConfig {
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 );
+
         return http.build();
     }
 
